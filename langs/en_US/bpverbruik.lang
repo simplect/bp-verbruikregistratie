@@ -1,0 +1,97 @@
+# Translation file
+
+#
+# Generic
+#
+
+# Module label 'ModuleBpVerbruikName'
+ModuleBpVerbruikName = BpVerbruik
+# Module description 'ModuleBpVerbruikDesc'
+ModuleBpVerbruikDesc = BpVerbruik description
+
+#
+# Admin page
+#
+BpVerbruikSetup = BpVerbruik setup
+Settings = Settings
+BpVerbruikSetupPage = BpVerbruik setup page
+NewSection=New section
+BPVERBRUIK_MYPARAM1 = My param 1
+BPVERBRUIK_MYPARAM1Tooltip = My param 1 tooltip
+BPVERBRUIK_MYPARAM2=My param 2
+BPVERBRUIK_MYPARAM2Tooltip=My param 2 tooltip
+
+#MedicijnVerbruik
+Fkwarehouse=Used from warehouse
+Fkproduct=Product used
+Qty=Qty used
+
+#
+# About page
+#
+About = About
+BpVerbruikAbout = About BpVerbruik
+BpVerbruikAboutPage = BpVerbruik about page
+
+#
+# Sample page
+#
+BpVerbruikArea = Home BpVerbruik
+MyPageName = My page name
+
+#
+# Sample widget
+#
+MyWidget = My widget
+MyWidgetDescription = My widget description
+
+#
+# Report page
+#
+ConsumptionReport=Consumption Report
+DateStart=Start Date
+DateEnd=End Date
+TotalValue=Total Value
+Search=Search
+ExportToPDF=Export to PDF
+ExportToExcel=Export to Excel
+Total=Total
+Period=Period
+
+#
+# Configuration
+#
+ReportAllowedUsers=Report Allowed Users
+ReportAllowedUsersHelp=Enter user IDs (comma-separated) who can access reports. Leave empty for admin-only access.
+
+#
+# Field labels
+#
+ProductName=Product Name
+ConsumptionDate=Consumption Date
+Warehouse=Warehouse
+
+#
+# Errors
+#
+ErrorProductNotFound=Product not found
+ErrorInsufficientStock=Insufficient stock
+ErrorStockDeductionFailed=Stock deduction failed
+AccessToReportsRestrictedToSpecificUsersOnly=Access to reports is restricted to specific users only
+YouAreNotAuthorizedToViewConsumptionReports=You are not authorized to view consumption reports
+
+#
+# Messages
+#
+ConsumptionCreatedSuccessfully=Consumption registered successfully
+StockDeductedSuccessfully=Stock has been deducted
+
+#
+# UI Enhancement
+#
+Hoeveelheid=Quantity
+HoeveelheidHelp=Number of items consumed
+QuickSelect=Quick select
+SelectProduct=Select product
+Loading=Loading
+Error=Error

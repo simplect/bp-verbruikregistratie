@@ -1,0 +1,102 @@
+# Translation file
+
+#
+# Generic
+#
+
+# Module label 'ModuleMyModuleName'
+ModuleMyModuleName = MyModule
+# Module description 'ModuleMyModuleDesc'
+ModuleMyModuleDesc = MyModule description
+
+#
+# Admin page
+#
+MyModuleSetup = MyModule setup
+Settings = Settings
+MyModuleSetupPage = MyModule setup page
+NewSection=New section
+MYMODULE_MYPARAM1 = My param 1
+MYMODULE_MYPARAM1Tooltip = My param 1 tooltip
+MYMODULE_MYPARAM2=My param 2
+MYMODULE_MYPARAM2Tooltip=My param 2 tooltip
+
+
+#MedicijnVerbruik
+Fkwarehouse=Verbruikslocatie
+Fkproduct= Verbruikt Artikel
+Qty=Aantal Verbruikt
+Datecreation=Verbruik datum
+Verbruikens= Geregistreerd verbruik
+Verbruiken=Verbruik registreren
+ModuleBpVerbruikName=BP Verbruikregistratie
+Verbruikenlines=Geregistreerde verbruiken
+#
+# About page
+#
+About = About
+MyModuleAbout = About MyModule
+MyModuleAboutPage = MyModule about page
+
+#
+# Sample page
+#
+MyModuleArea = Home MyModule
+MyPageName = My page name
+
+#
+# Sample widget
+#
+MyWidget = My widget
+MyWidgetDescription = My widget description
+
+#
+# Report page
+#
+ConsumptionReport=Verbruik Rapportage
+DateStart=Start Datum
+DateEnd=Eind Datum
+TotalValue=Totale Waarde
+Search=Zoeken
+ExportToPDF=Exporteer naar PDF
+ExportToExcel=Exporteer naar Excel
+Total=Totaal
+Period=Periode
+
+#
+# Configuration
+#
+ReportAllowedUsers=Toegestane Gebruikers voor Rapportage
+ReportAllowedUsersHelp=Vul gebruikers IDs in (gescheiden door komma's) die toegang hebben tot rapportage. Laat leeg voor alleen admin toegang.
+
+#
+# Field labels
+#
+ProductName=Artikel Naam
+ConsumptionDate=Verbruik Datum
+Warehouse=Magazijn
+
+#
+# Errors
+#
+ErrorProductNotFound=Product niet gevonden
+ErrorInsufficientStock=Onvoldoende voorraad
+ErrorStockDeductionFailed=Voorraad aftrek mislukt
+AccessToReportsRestrictedToSpecificUsersOnly=Toegang tot rapportages is beperkt tot specifieke gebruikers
+YouAreNotAuthorizedToViewConsumptionReports=U bent niet geautoriseerd om verbruik rapportages te bekijken
+
+#
+# Messages
+#
+ConsumptionCreatedSuccessfully=Verbruik succesvol geregistreerd
+StockDeductedSuccessfully=Voorraad is afgetrokken
+
+#
+# UI Enhancement
+#
+Hoeveelheid=Hoeveelheid
+HoeveelheidHelp=Aantal stuks dat verbruikt is
+QuickSelect=Snel kiezen
+SelectProduct=Selecteer product
+Loading=Laden
+Error=Fout

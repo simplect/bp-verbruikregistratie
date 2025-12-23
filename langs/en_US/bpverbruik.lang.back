@@ -1,0 +1,45 @@
+# Translation file
+
+#
+# Generic
+#
+
+# Module label 'ModuleBpVerbruikName'
+ModuleBpVerbruikName = BpVerbruik
+# Module description 'ModuleBpVerbruikDesc'
+ModuleBpVerbruikDesc = BpVerbruik description
+
+#
+# Admin page
+#
+BpVerbruikSetup = BpVerbruik setup
+Settings = Settings
+BpVerbruikSetupPage = BpVerbruik setup page
+NewSection=New section
+BPVERBRUIK_MYPARAM1 = My param 1
+BPVERBRUIK_MYPARAM1Tooltip = My param 1 tooltip
+BPVERBRUIK_MYPARAM2=My param 2
+BPVERBRUIK_MYPARAM2Tooltip=My param 2 tooltip
+
+#MedicijnVerbruik
+Fkwarehouse=Used from warehouse
+Fkproduct=Product used
+
+#
+# About page
+#
+About = About
+BpVerbruikAbout = About BpVerbruik
+BpVerbruikAboutPage = BpVerbruik about page
+
+#
+# Sample page
+#
+BpVerbruikArea = Home BpVerbruik
+MyPageName = My page name
+
+#
+# Sample widget
+#
+MyWidget = My widget
+MyWidgetDescription = My widget description
