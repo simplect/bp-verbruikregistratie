@@ -49,6 +49,7 @@ MyWidgetDescription = My widget description
 # Report page
 #
 ConsumptionReport=Consumption Report
+ConsumptionExport=Consumption Export
 DateStart=Start Date
 DateEnd=End Date
 TotalValue=Total Value
