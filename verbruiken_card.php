@@ -190,6 +190,11 @@ if (empty($reshook)) {
 		}
 	}
 
+	// For the 'add' action, redirect back to the create form instead of the created record
+	if ($action == 'add' && empty($cancel)) {
+		$backtopage = dol_buildpath('/bpverbruik/verbruiken_card.php', 1).'?action=create&save=success';
+	}
+
 	$triggermodname = 'BPVERBRUIK_MYOBJECT_MODIFY'; // Name of trigger action code to execute when we modify record
 
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
@@ -261,6 +266,11 @@ llxHeader('', $title, $help_url, '', 0, 0, '', '', '', 'mod-bpverbruik page-card
 if ($action == 'create') {
 	if (empty($permissiontoadd)) {
 		accessforbidden('NotEnoughPermissions', 0, 1);
+	}
+
+	// Show success message if redirected after save
+	if (GETPOST('save', 'alpha') == 'success') {
+		setEventMessages($langs->trans("ConsumptionCreatedSuccessfully"), null, 'mesgs');
 	}
 
 	print load_fiche_titre($title, '', 'object_'.$object->picto);
