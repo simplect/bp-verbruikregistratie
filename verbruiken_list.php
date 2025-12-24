@@ -264,6 +264,155 @@ if (empty($reshook)) {
 	$uploaddir = $conf->bpverbruik->dir_output;
 	include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
 
+	// Handle export to PDF mass action
+	if ($massaction == 'export_pdf' && !empty($toselect)) {
+		require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
+		require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
+
+		// Build SQL query for selected items
+		$ids = implode(',', array_map('intval', $toselect));
+		$sql = "SELECT v.rowid, v.ref, v.qty, v.date_creation, ";
+		$sql .= "p.ref as product_ref, p.label as product_name, p.pmp, ";
+		$sql .= "e.ref as warehouse_ref, e.label as warehouse_name, ";
+		$sql .= "(v.qty * p.pmp) as total_value ";
+		$sql .= "FROM ".MAIN_DB_PREFIX."bpverbruik_verbruiken as v ";
+		$sql .= "LEFT JOIN ".MAIN_DB_PREFIX."product as p ON p.rowid = v.fk_product ";
+		$sql .= "LEFT JOIN ".MAIN_DB_PREFIX."entrepot as e ON e.rowid = v.fk_warehouse ";
+		$sql .= "WHERE v.rowid IN (".$ids.")";
+		$sql .= " ORDER BY v.date_creation DESC";
+
+		$resql_export = $db->query($sql);
+
+		$pdf = pdf_getInstance();
+		$pdf->SetTitle($langs->trans('ConsumptionExport'));
+		$pdf->AddPage();
+
+		// Title
+		$pdf->SetFont('', 'B', 16);
+		$pdf->Cell(0, 10, $langs->trans('ConsumptionExport'), 0, 1, 'C');
+		$pdf->Ln(5);
+
+		// Table headers
+		$pdf->SetFont('', 'B', 9);
+		$pdf->Cell(30, 7, $langs->trans('Ref'), 1, 0, 'L');
+		$pdf->Cell(50, 7, $langs->trans('Product'), 1, 0, 'L');
+		$pdf->Cell(20, 7, $langs->trans('Qty'), 1, 0, 'R');
+		$pdf->Cell(40, 7, $langs->trans('Warehouse'), 1, 0, 'L');
+		$pdf->Cell(30, 7, $langs->trans('Date'), 1, 0, 'L');
+		$pdf->Cell(20, 7, $langs->trans('TotalValue'), 1, 1, 'R');
+
+		// Data rows
+		$pdf->SetFont('', '', 8);
+		$total_qty = 0;
+		$total_value = 0;
+
+		if ($resql_export) {
+			while ($obj = $db->fetch_object($resql_export)) {
+				$pdf->Cell(30, 6, $obj->ref, 1, 0, 'L');
+				$pdf->Cell(50, 6, dol_trunc($obj->product_name, 25), 1, 0, 'L');
+				$pdf->Cell(20, 6, $obj->qty, 1, 0, 'R');
+				$pdf->Cell(40, 6, dol_trunc($obj->warehouse_name, 20), 1, 0, 'L');
+				$pdf->Cell(30, 6, dol_print_date($db->jdate($obj->date_creation), 'day'), 1, 0, 'L');
+				$pdf->Cell(20, 6, price($obj->total_value, 0, '', 1, 2), 1, 1, 'R');
+
+				$total_qty += $obj->qty;
+				$total_value += $obj->total_value;
+			}
+			$db->free($resql_export);
+		}
+
+		// Totals
+		$pdf->SetFont('', 'B', 9);
+		$pdf->Cell(80, 7, $langs->trans('Total'), 1, 0, 'L');
+		$pdf->Cell(20, 7, $total_qty, 1, 0, 'R');
+		$pdf->Cell(70, 7, '', 1, 0, 'L');
+		$pdf->Cell(20, 7, price($total_value, 0, '', 1, 2), 1, 1, 'R');
+
+		// Output
+		$pdf->Output('consumption_export_'.dol_now().'.pdf', 'D');
+		exit;
+	}
+
+	// Handle export to Excel mass action
+	if ($massaction == 'export_excel' && !empty($toselect)) {
+		require_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
+		require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
+
+		// Build SQL query for selected items
+		$ids = implode(',', array_map('intval', $toselect));
+		$sql = "SELECT v.rowid, v.ref, v.qty, v.date_creation, ";
+		$sql .= "p.ref as product_ref, p.label as product_name, p.pmp, ";
+		$sql .= "e.ref as warehouse_ref, e.label as warehouse_name, ";
+		$sql .= "u.firstname, u.lastname, ";
+		$sql .= "(v.qty * p.pmp) as total_value ";
+		$sql .= "FROM ".MAIN_DB_PREFIX."bpverbruik_verbruiken as v ";
+		$sql .= "LEFT JOIN ".MAIN_DB_PREFIX."product as p ON p.rowid = v.fk_product ";
+		$sql .= "LEFT JOIN ".MAIN_DB_PREFIX."entrepot as e ON e.rowid = v.fk_warehouse ";
+		$sql .= "LEFT JOIN ".MAIN_DB_PREFIX."user as u ON u.rowid = v.fk_user_creat ";
+		$sql .= "WHERE v.rowid IN (".$ids.")";
+		$sql .= " ORDER BY v.date_creation DESC";
+
+		$resql_export = $db->query($sql);
+
+		// Prepare data
+		$data = array();
+		$total_qty = 0;
+		$total_value = 0;
+
+		if ($resql_export) {
+			while ($obj = $db->fetch_object($resql_export)) {
+				$data[] = array(
+					'ref' => $obj->ref,
+					'product' => $obj->product_ref.' - '.$obj->product_name,
+					'qty' => $obj->qty,
+					'warehouse' => $obj->warehouse_ref.' - '.$obj->warehouse_name,
+					'date' => dol_print_date($db->jdate($obj->date_creation), 'dayhour'),
+					'user' => $obj->firstname.' '.$obj->lastname,
+					'value' => $obj->total_value
+				);
+				$total_qty += $obj->qty;
+				$total_value += $obj->total_value;
+			}
+			$db->free($resql_export);
+		}
+
+		// Generate CSV (simple Excel-compatible format)
+		header('Content-Type: text/csv; charset=utf-8');
+		header('Content-Disposition: attachment; filename=consumption_export_'.dol_now().'.csv');
+
+		$output = fopen('php://output', 'w');
+
+		// Header row
+		fputcsv($output, array(
+			$langs->trans('Ref'),
+			$langs->trans('Product'),
+			$langs->trans('Qty'),
+			$langs->trans('Warehouse'),
+			$langs->trans('Date'),
+			$langs->trans('User'),
+			$langs->trans('TotalValue')
+		));
+
+		// Data rows
+		foreach ($data as $row) {
+			fputcsv($output, $row);
+		}
+
+		// Total row
+		fputcsv($output, array(
+			$langs->trans('Total'),
+			'',
+			$total_qty,
+			'',
+			'',
+			'',
+			$total_value
+		));
+
+		fclose($output);
+		exit;
+	}
+
 	// You can add more action here
 	// if ($action == 'xxx' && $permissiontoxxx) ...
 }
@@ -517,6 +666,9 @@ $arrayofmassactions = array(
 	//'builddoc'=>img_picto('', 'pdf', 'class="pictofixedwidth"').$langs->trans("PDFMerge"),
 	//'presend'=>img_picto('', 'email', 'class="pictofixedwidth"').$langs->trans("SendByMail"),
 );
+// Add export options
+$arrayofmassactions['export_pdf'] = img_picto('', 'pdf', 'class="pictofixedwidth"').$langs->trans("ExportToPDF");
+$arrayofmassactions['export_excel'] = img_picto('', 'plainetext', 'class="pictofixedwidth"').$langs->trans("ExportToExcel");
 if (!empty($permissiontodelete)) {
 	$arrayofmassactions['predelete'] = img_picto('', 'delete', 'class="pictofixedwidth"').$langs->trans("Delete");
 }

@@ -54,6 +54,7 @@ MyWidgetDescription = My widget description
 # Report page
 #
 ConsumptionReport=Verbruik Rapportage
+ConsumptionExport=Verbruik Export
 DateStart=Start Datum
 DateEnd=Eind Datum
 TotalValue=Totale Waarde
