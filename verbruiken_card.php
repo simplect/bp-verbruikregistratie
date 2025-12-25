@@ -434,7 +434,7 @@ if ($action == 'create') {
 
 				// Quick select label and buttons
 				buttonsHtml += \'<span style="margin-right: 5px;">'.dol_escape_js($langs->trans("QuickSelect")).':</span>\';
-				var quantities = [1, 2, 3, 4, 5, 10];
+				var quantities = [2, 3, 4, 5, 10];
 				$.each(quantities, function(index, qty) {
 					buttonsHtml += \'<button type="button" class="button smallpaddingimp qty-btn" data-qty="\' + qty + \'" style="margin-right: 3px;">\' + qty + \'</button>\';
 				});
