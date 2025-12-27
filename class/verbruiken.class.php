@@ -114,7 +114,7 @@ class Verbruiken extends CommonObject
 		"rowid" => array("type"=>"integer", "label"=>"TechnicalID", "enabled"=>"1", 'position'=>10, 'notnull'=>1, "visible"=>"0",),
 		"ref" => array("type"=>"varchar(128)", "label"=>"Ref", "enabled"=>"1", 'position'=>20, 'notnull'=>1, "visible"=>"4", "csslist"=>"tdoverflowmax150",),
 		"label" => array("type"=>"varchar(255)", "label"=>"Label", "enabled"=>"1", 'position'=>150, 'notnull'=>0, "visible"=>"0", "css"=>"minwidth300", "cssview"=>"wordbreak", "csslist"=>"tdoverflowmax150",),
-		"qty" => array("type"=>"double", "label"=>"Hoeveelheid", "enabled"=>"1", 'position'=>35, 'notnull'=>1, "visible"=>"1", "default"=>"0", "css"=>"width100",),
+		"qty" => array("type"=>"double", "label"=>"Hoeveelheid", "enabled"=>"1", 'position'=>35, 'notnull'=>1, "visible"=>"1", "default"=>"0", "css"=>"width100", "cssview"=>"", "moreattr"=>"min=\"0\" step=\"1\"",),
 		"fk_warehouse" => array("type"=>"integer:entrepot:product/stock/class/entrepot.class.php", "label"=>"Fkwarehouse", "enabled"=>"1", 'position'=>25, 'notnull'=>1, "visible"=>"1", "css"=>"maxwidth500 widthcentpercentminusxx", "csslist"=>"tdoverflowmax150",),
 		"note_public" => array("type"=>"text", "label"=>"NotePublic", "enabled"=>"1", 'position'=>50, 'notnull'=>0, "visible"=>"0", "alwayseditable"=>"1", "cssview"=>"wordbreak",),
 		"note_private" => array("type"=>"text", "label"=>"NotePrivate", "enabled"=>"1", 'position'=>55, 'notnull'=>0, "visible"=>"0", "alwayseditable"=>"1", "cssview"=>"wordbreak",),
@@ -239,6 +239,12 @@ class Verbruiken extends CommonObject
 		global $conf;
 
 		$error = 0;
+
+		// Validate quantity is not negative
+		if ($this->qty < 0) {
+			$this->error = "Quantity cannot be negative";
+			return -1;
+		}
 
 		// Start transaction
 		$this->db->begin();
@@ -537,6 +543,12 @@ class Verbruiken extends CommonObject
 	 */
 	public function update(User $user, $notrigger = 0)
 	{
+		// Validate quantity is not negative
+		if ($this->qty < 0) {
+			$this->error = "Quantity cannot be negative";
+			return -1;
+		}
+
 		return $this->updateCommon($user, $notrigger);
 	}
 
