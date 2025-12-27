@@ -236,7 +236,7 @@ class Verbruiken extends CommonObject
 	 */
 	public function create(User $user, $notrigger = 0)
 	{
-		global $conf;
+		global $conf, $langs;
 
 		$error = 0;
 
@@ -245,6 +245,43 @@ class Verbruiken extends CommonObject
 
 		// Set creation date
 		$this->date_creation = date("Y-m-d H:i:s");
+
+		// Get product information for price tracking and stock validation
+		$product = new Product($this->db);
+		$resultfetch = $product->fetch($this->fk_product);
+
+		if ($resultfetch <= 0) {
+			$this->error = "Product not found";
+			$this->db->rollback();
+			return -1;
+		}
+
+		// Check current stock level before allowing consumption
+		$sql = "SELECT reel FROM ".MAIN_DB_PREFIX."product_stock";
+		$sql .= " WHERE fk_product = ".((int) $this->fk_product);
+		$sql .= " AND fk_entrepot = ".((int) $this->fk_warehouse);
+
+		$resql = $this->db->query($sql);
+		if ($resql) {
+			$obj = $this->db->fetch_object($resql);
+			$current_stock = 0;
+			if ($obj) {
+				$current_stock = $obj->reel;
+			}
+			$this->db->free($resql);
+
+			// Prevent negative stock: check if requested quantity exceeds available stock
+			if ($this->qty > $current_stock) {
+				$langs->load("bpverbruik@bpverbruik");
+				$this->error = $langs->trans("InsufficientStock", $current_stock, $this->qty);
+				$this->db->rollback();
+				return -3;
+			}
+		} else {
+			$this->error = $this->db->lasterror();
+			$this->db->rollback();
+			return -1;
+		}
 
 		// Create the consumption record first
 		$resultcreate = $this->createCommon($user, $notrigger);
@@ -257,16 +294,6 @@ class Verbruiken extends CommonObject
 		// Now deduct stock
 		$mouvementstock = new MouvementStock($this->db);
 
-		// Get product information for price tracking
-		$product = new Product($this->db);
-		$resultfetch = $product->fetch($this->fk_product);
-
-		if ($resultfetch <= 0) {
-			$this->error = "Product not found";
-			$this->db->rollback();
-			return -1;
-		}
-
 		// Prepare movement label
 		$label = 'Consumption: '.$this->ref;
 		if (!empty($this->label)) {
@@ -276,15 +303,14 @@ class Verbruiken extends CommonObject
 		// Generate inventory code for grouping related movements
 		$inventorycode = 'CONSUMPTION-'.$this->ref;
 
-		// Perform stock deduction using _create method (bypasses stock limit checks)
-		// This allows consumption registration even when system stock is incorrect/low
-		// Users trust physical count over system, so we allow negative stock
+		// Perform stock deduction using _create method
+		// Stock validation is now enforced before this point
 		$result = $mouvementstock->_create(
 			$user,                    // Current user
 			$this->fk_product,       // Product ID
 			$this->fk_warehouse,     // Warehouse ID
 			(0 - $this->qty),        // Negative quantity for stock reduction
-			1,                       // Type 1 = Manual output (allows negative stock)
+			1,                       // Type 1 = Manual output
 			$product->pmp,           // Average price for value tracking
 			$label,                  // Movement description
 			$inventorycode,          // Inventory code for grouping

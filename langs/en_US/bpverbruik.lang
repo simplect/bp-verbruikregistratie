@@ -77,6 +77,7 @@ Warehouse=Warehouse
 #
 ErrorProductNotFound=Product not found
 ErrorInsufficientStock=Insufficient stock
+InsufficientStock=Insufficient stock. Available: %s, Requested: %s
 ErrorStockDeductionFailed=Stock deduction failed
 AccessToReportsRestrictedToSpecificUsersOnly=Access to reports is restricted to specific users only
 YouAreNotAuthorizedToViewConsumptionReports=You are not authorized to view consumption reports

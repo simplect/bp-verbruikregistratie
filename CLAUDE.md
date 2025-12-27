@@ -188,19 +188,22 @@ CREATE TABLE llx_bpverbruik_verbruiken (
 
 **How it works:**
 1. User submits consumption form
-2. `verbruiken.class.php::create()` validates data
-3. Record inserted into `llx_bpverbruik_verbruiken`
-4. Status automatically set to VALIDATED (1)
-5. Trigger `VERBRUIKEN_CREATE` fires
-6. `MouvementStock::_create()` called with:
-   - Type 1 (Manual output - allows negative stock)
+2. `verbruiken.class.php::create()` validates data and checks stock availability
+3. **Stock validation:** System checks if requested quantity ≤ available stock
+   - Query `llx_product_stock` for current stock level
+   - If insufficient stock, return error with available vs requested quantities
+4. Record inserted into `llx_bpverbruik_verbruiken`
+5. Status automatically set to VALIDATED (1)
+6. Trigger `VERBRUIKEN_CREATE` fires
+7. `MouvementStock::_create()` called with:
+   - Type 1 (Manual output)
    - Negative quantity (0 - qty) for stock reduction
    - Creates entry in `llx_stock_mouvement`
-7. Stock level in `llx_product_stock` automatically updated
+8. Stock level in `llx_product_stock` automatically updated
 
-**File:** `class/verbruiken.class.php` lines 281-298
+**File:** `class/verbruiken.class.php` lines 237-346
 
-**Important:** Uses `_create()` instead of `livraison()` to bypass stock validation and allow negative stock (trusts physical count over system inventory).
+**Important:** Stock validation is enforced before consumption - negative stock is **not allowed**. Users will receive an error message if they attempt to consume more than available stock.
 
 ### 3. Reporting System
 
@@ -307,18 +310,36 @@ $(document).ready(function() {
 
 ### 1. Stock Movement Creation
 
-**Pattern:** Always use `MouvementStock::_create()` for consumption
+**Pattern:** Stock validation first, then use `MouvementStock::_create()` for consumption
 
 ```php
 require_once DOL_DOCUMENT_ROOT.'/product/stock/class/mouvementstock.class.php';
 
+// STEP 1: Validate stock availability
+$sql = "SELECT reel FROM ".MAIN_DB_PREFIX."product_stock";
+$sql .= " WHERE fk_product = ".((int) $this->fk_product);
+$sql .= " AND fk_entrepot = ".((int) $this->fk_warehouse);
+
+$resql = $this->db->query($sql);
+if ($resql) {
+    $obj = $this->db->fetch_object($resql);
+    $current_stock = $obj ? $obj->reel : 0;
+
+    // Check if requested quantity exceeds available stock
+    if ($this->qty > $current_stock) {
+        $this->error = $langs->trans("InsufficientStock", $current_stock, $this->qty);
+        return -3;  // Return error code
+    }
+}
+
+// STEP 2: Create stock movement (only if validation passed)
 $mouvementstock = new MouvementStock($this->db);
 $result = $mouvementstock->_create(
     $user,                      // Current user
     $this->fk_product,          // Product ID
     $this->fk_warehouse,        // Warehouse ID
     (0 - $this->qty),           // Negative qty for stock reduction
-    1,                          // Type 1 = Manual output (allows negative stock)
+    1,                          // Type 1 = Manual output
     $product->pmp,              // Average price for value tracking
     $label,                     // Movement description
     $inventorycode,             // Inventory code for grouping
@@ -333,10 +354,11 @@ $result = $mouvementstock->_create(
 );
 ```
 
-**Why not `livraison()`?**
-- `livraison()` enforces stock validation and blocks when stock is low
-- `_create()` with type 1 allows negative stock
-- Users register consumption based on physical count, even if system stock is incorrect
+**Why validate stock?**
+- Prevents negative stock situations
+- Ensures accurate inventory tracking
+- Users receive clear error messages when stock is insufficient
+- System displays available vs requested quantities in error
 
 ### 2. Translation Loading
 

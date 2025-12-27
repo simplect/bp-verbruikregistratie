@@ -82,6 +82,7 @@ Warehouse=Magazijn
 #
 ErrorProductNotFound=Product niet gevonden
 ErrorInsufficientStock=Onvoldoende voorraad
+InsufficientStock=Onvoldoende voorraad. Beschikbaar: %s, Gevraagd: %s
 ErrorStockDeductionFailed=Voorraad aftrek mislukt
 AccessToReportsRestrictedToSpecificUsersOnly=Toegang tot rapportages is beperkt tot specifieke gebruikers
 YouAreNotAuthorizedToViewConsumptionReports=U bent niet geautoriseerd om verbruik rapportages te bekijken
