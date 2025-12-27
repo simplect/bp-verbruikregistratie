@@ -462,6 +462,14 @@ if ($action == 'create') {
 					qtyField.focus();
 				});
 
+				// Prevent negative input
+				qtyField.on("input change", function() {
+					var val = parseFloat($(this).val());
+					if (val < 0 || isNaN(val)) {
+						$(this).val(0);
+					}
+				});
+
 				// Quick select button click handlers
 				$(".qty-btn").click(function(e) {
 					e.preventDefault();
